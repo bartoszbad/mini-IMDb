@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 import datetime
 from rest_framework import generics, status, renderers, request
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from .models import Movie, MovieRating, MovieOnList
@@ -20,6 +20,7 @@ class MovieList(generics.ListCreateAPIView):
 class MovieDetail(generics.RetrieveDestroyAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    permission_classes = [IsAdminUser]
 
 
 # link to movie details
@@ -66,7 +67,7 @@ class AddMovieToFavourites(generics.ListCreateAPIView):
 class FavouriteDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MovieOnList.objects.all()
     serializer_class = MovieOnListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 # link to details of Favourite
@@ -98,7 +99,7 @@ class AddMovieToWantToSeeList(generics.ListCreateAPIView):
 class WantToSeeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MovieOnList.objects.all()
     serializer_class = MovieOnListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 # link to details of Want to see movie
