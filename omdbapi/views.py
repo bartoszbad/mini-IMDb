@@ -1,30 +1,34 @@
-from django.contrib.auth.models import User
-from django.shortcuts import render
 import datetime
-from rest_framework import generics, status, renderers, request
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.response import Response
+
+from rest_framework import generics, status, renderers
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import Movie, MovieRating, MovieOnList
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrReadOnly, IsAdminUserOrReadOnly
 from .serializers import MovieSerializer, MovieSearchByTitleSerializer, \
     MovieRatingSerializer, MovieOnListSerializer
 
 
-# Explore movie database
-class MovieList(generics.ListCreateAPIView):
+class MovieList(generics.ListAPIView):
+    """
+    Explore movie database
+    """
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
 
 
-class MovieDetail(generics.RetrieveDestroyAPIView):
+class MovieDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUserOrReadOnly]
 
 
-# link to movie details
 class MovieHighlight(generics.GenericAPIView):
+    """
+    Link to movie details
+    """
     queryset = Movie.objects.all()
     renderer_classes = [renderers.StaticHTMLRenderer]
 
@@ -33,8 +37,10 @@ class MovieHighlight(generics.GenericAPIView):
         return Response(movie.highlighted)
 
 
-# Search movie by title, omdb returns one closest match
 class MovieSearchByTitleAndYear(generics.ListAPIView):
+    """
+    Search movie by title, omdb returns one closest match
+    """
     queryset = Movie.objects.none()
     serializer_class = MovieSearchByTitleSerializer
 
@@ -59,7 +65,7 @@ class AddMovieToFavourites(generics.ListCreateAPIView):
         user = self.request.user
         fav_list = user.lists.get(name="Favourites")
         # prevent duplicates
-        if len(MovieOnList.objects.filter(user=user).filter(movie=self.request.data['movie']).filter(list=fav_list)) > 0:
+        if MovieOnList.objects.filter(user=user, movie=self.request.data['movie'], list=fav_list).exists():
             raise ValidationError("You have already added this movie to that list!")
         return serializer.save(user=user, list=fav_list)
 
@@ -70,8 +76,10 @@ class FavouriteDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
 
-# link to details of Favourite
 class FavouriteDetailHighlight(generics.GenericAPIView):
+    """
+    Link to details of Favourite
+    """
     queryset = MovieOnList.objects.all()
     renderer_classes = [renderers.StaticHTMLRenderer]
 
@@ -91,7 +99,7 @@ class AddMovieToWantToSeeList(generics.ListCreateAPIView):
         user = self.request.user
         want_list = user.lists.get(name="Want to see")
         # prevent duplicates
-        if len(MovieOnList.objects.filter(user=user).filter(movie=self.request.data['movie']).filter(list=want_list)) > 0:
+        if MovieOnList.objects.filter(user=user, movie=self.request.data['movie'], list=want_list).exists():
             raise ValidationError("You have already added this movie to that list!")
         return serializer.save(user=user, list=want_list)
 
@@ -102,8 +110,10 @@ class WantToSeeDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
 
-# link to details of Want to see movie
 class WantToSeeDetailHighlight(generics.GenericAPIView):
+    """
+    Link to details of Want to see movie
+    """
     queryset = MovieOnList.objects.all()
     renderer_classes = [renderers.StaticHTMLRenderer]
 
@@ -121,7 +131,7 @@ class RateMovie(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         # prevent duplicates
-        if len(MovieRating.objects.filter(user=self.request.user).filter(movie=self.request.data['movie'])) > 0:
+        if MovieRating.objects.filter(user=self.request.user, movie=self.request.data['movie']).exists():
             raise ValidationError("You have already rated this movie!")
         return serializer.save(user=self.request.user)
 
@@ -132,8 +142,10 @@ class RateMovieDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
 
-# link to details of Movie Rating
 class RateMovieDetailHighlight(generics.GenericAPIView):
+    """
+    Link to details of Movie Rating
+    """
     queryset = MovieRating.objects.all()
     renderer_classes = [renderers.StaticHTMLRenderer]
 

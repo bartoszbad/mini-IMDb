@@ -4,6 +4,7 @@ from django.db import models
 
 
 class MovieSearchClass(object):
+
     def __init__(self, title=None, types=None):
         self.title = title
         self.types = types
@@ -23,10 +24,10 @@ LISTS = [
 
 class Movie(models.Model):
     title = models.CharField(max_length=255, unique=True)
-    year = models.CharField(null=True, max_length=255)  # is char because sometimes year cannot be parsed to int
+    # Is char because sometimes year cannot be parsed to int
+    year = models.CharField(null=True, max_length=255)
     rated = models.CharField(max_length=10, null=True)
-    released = models.CharField(max_length=255,
-                                null=True)  # using char field because not sure if it keeps date format everytime
+    released = models.CharField(max_length=255, null=True)
     runtime = models.CharField(max_length=255, null=True)
     genre = models.CharField(max_length=255, null=True)
     director = models.TextField(null=True)
@@ -42,8 +43,7 @@ class Movie(models.Model):
     imdbvotes = models.CharField(max_length=255, null=True)
     imdb_id = models.CharField(max_length=255, null=True)
     type = models.CharField(max_length=255, choices=TYPES)
-    dvd = models.CharField(max_length=255,
-                           null=True)  # using char field because not sure if it keeps date format everytime
+    dvd = models.CharField(max_length=255, null=True)
     boxoffice = models.CharField(max_length=255, null=True)
     production = models.TextField(null=True)
     website = models.TextField(null=True)
@@ -68,8 +68,7 @@ class MovieOnList(models.Model):
 
 
 class MovieRating(models.Model):
-    rating = models.IntegerField(validators=[MinValueValidator(1),
-                                             MaxValueValidator(10)])
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
 

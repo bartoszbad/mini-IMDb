@@ -1,6 +1,7 @@
 from django.urls import path, include
-from .views import RegisterView, UserList, UserDetail, UserDetailHighlight
 from rest_framework import routers
+
+from .views import RegisterView, UserList, UserDetail, UserDetailHighlight
 
 router = routers.DefaultRouter()
 router.register('register', RegisterView, 'list')

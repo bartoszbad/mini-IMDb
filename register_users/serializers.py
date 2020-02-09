@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+
 from omdbapi.models import UserMovieList
 from omdbapi.serializers import MovieRatingSerializer
 
@@ -43,5 +44,3 @@ class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'details', 'username', 'ratings']
-
-

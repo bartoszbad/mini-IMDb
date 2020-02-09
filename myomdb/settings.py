@@ -38,11 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'omdbapi.apps.OmdbapiConfig',
+    'register_users.apps.RegisterUsersConfig',
     'rest_framework',
     'requests',
-    'register_users',
     'django_filters',
-    'myomdb'
+    'myomdb',
 ]
 
 MIDDLEWARE = [
